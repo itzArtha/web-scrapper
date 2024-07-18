@@ -4,13 +4,22 @@ import {useState} from "react";
 import { Dropdown } from 'primereact/dropdown';
 import TextInput from '@/Components/TextInput';
 import PrimaryButton from "@/Components/PrimaryButton.jsx";
-
+import { useForm } from '@inertiajs/react'
 export default function Welcome() {
-    const [selected, setSelected] = useState(null);
+    const { data, setData, post, processing, errors } = useForm({
+        code: '',
+        url: ''
+    })
+
     const commerces = [
         { name: 'Tokopedia', code: 'TP' },
         { name: 'Shopee', code: 'SP' }
     ];
+
+    const handleSubmit = (e) => {
+        e.preventDefault()
+        post(route('website.scrap'))
+    }
 
     return (
         <>
@@ -18,7 +27,7 @@ export default function Welcome() {
             <GuestLayout>
                 <div className={"grid grid-cols-3 gap-2"}>
                     <div className={"col-span-1"}>
-                        <Dropdown value={selected} onChange={(e) => setSelected(e.value)}
+                        <Dropdown value={data.code} onChange={(e) => setData("code", e.value)}
                                   options={commerces} optionLabel="name"
                                   placeholder="Pilih eCommerce" className="w-full md:w-14rem" />
                     </div>
@@ -27,17 +36,20 @@ export default function Welcome() {
                             id="url"
                             type="url"
                             name="url"
-                            value={""}
+                            value={data.url}
                             className="mt-1 block w-full"
                             placeholder={"URL"}
                             autoComplete="username"
                             isFocused={true}
-                            onChange={(e) => console.log('ok')}
+                            onChange={(e) => setData("url", e.target.value)}
                         />
-                        <PrimaryButton className="ms-2" disabled={false}>
+                        <PrimaryButton className="ms-2" disabled={processing} onClick={handleSubmit}>
                             Scrap
                         </PrimaryButton>
                     </div>
+                </div>
+                <div className={"mt-4"}>
+                    <p className={"text-center"}>Download hasil scrap <a href="#" className={"text-blue-500"}>disini</a></p>
                 </div>
             </GuestLayout>
         </>

@@ -15,6 +15,7 @@ Route::get('/', function () {
     ]);
 });
 
+Route::get('/scrap/download', [ScrapWebsite::class, 'download'])->name('website.scrap');
 Route::post('/scrap', ScrapWebsite::class)->name('website.scrap');
 
 Route::get('/dashboard', function () {

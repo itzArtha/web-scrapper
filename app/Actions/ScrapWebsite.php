@@ -2,9 +2,13 @@
 
 namespace App\Actions;
 
+use App\Exports\ProductsExport;
+use App\Models\Product;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\BrowserKit\HttpBrowser;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpClient\HttpClient;
@@ -26,34 +30,47 @@ class ScrapWebsite
     public function handle(ActionRequest $request)
     {
         $url = $request->input('url');
-        $browser = new HttpBrowser(HttpClient::create([
-            'headers' => [
-                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-                'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-                'Accept-Encoding' => 'gzip, deflate, br',
-                'Accept-Language' => 'en-US,en;q=0.5',
-                'Connection' => 'keep-alive',
-                'Upgrade-Insecure-Requests' => '1',
-            ],
-            'http_version' => '1.1', // Switch to HTTP/1.1
-        ]));
+        $browser = new HttpBrowser(HttpClient::create());
 
-        $browser->request('GET', $url);
-        $response = $browser->getResponse();
+        $crawler = $browser->request('GET', $url);
 
-        $content = $response->getContent();
+        $productGridContainer = $crawler->filter('.product-grid-container');
+        $collection = $productGridContainer->filter('.collection');
+        $productGrid = $collection->filter('.product-grid');
 
-        $crawler = new Crawler($content);
+        $productGrid->filter('.grid__item')->each(function (Crawler $node) use ($browser) {
+            $productContentWrapper = $node->filter('.product-card-wrapper');
+            $productCard = $productContentWrapper->filter('.card--standard');
 
-        $crawler->filter('.css-974ipl')->each(function (Crawler $node) {
-            $title = $node->filter('.css-1bjwylw')->text();
-            $price = $node->filter('.css-rhd610')->text();
-            $link = $node->filter('a')->attr('href');
+            $productCardInnerMedia = $productContentWrapper->filter('.card__inner');
+            $productCardMedia = $productCardInnerMedia->filter('.card__media');
+            $productMedia = $productCardMedia->filter('.media');
 
-            Log::info("Title: $title");
-            Log::info("Price: $price");
-            Log::info("Link: $link");
-            Log::info('-----------------------------');
+            $productContent = $productCard->filter('.card__content');
+            $productContent = $productContent->filter('.card__information');
+            $productName = $productContent->filter('h3')->text();
+            $productPrice = $productContent->filter('.price');
+            $productPriceContainer = $productPrice->filter('.price__container');
+            $productPriceRegular = $productPriceContainer->filter('.price__regular');
+            $productPrice = $productPriceRegular->filter('.price-item')->text();
+
+            $productImageUrl = $productMedia->filter('img')->attr('src');
+
+            $uuid = Str::uuid();
+
+            Product::create([
+                'uuid' => $uuid,
+                'name' => $productName,
+                'price' => $productPrice,
+                'image_url' => 'https:' . $productImageUrl
+            ]);
         });
+
+        return back()->with(['status' => 'Berhasil scraping data']);
+    }
+
+    public function download(ActionRequest $request)
+    {
+        return Excel::download(new ProductsExport, now()->format('Ymd') . '-' . 'products.xlsx');
     }
 }

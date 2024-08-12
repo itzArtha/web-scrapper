@@ -5,7 +5,7 @@ import { Dropdown } from 'primereact/dropdown';
 import TextInput from '@/Components/TextInput';
 import PrimaryButton from "@/Components/PrimaryButton.jsx";
 import { useForm } from '@inertiajs/react'
-export default function Welcome() {
+export default function Welcome({status}) {
     const { data, setData, post, processing, errors } = useForm({
         code: '',
         url: ''
@@ -21,17 +21,13 @@ export default function Welcome() {
         post(route('website.scrap'))
     }
 
+    console.log(status)
+
     return (
         <>
             <Head title="Welcome" />
             <GuestLayout>
-                <div className={"grid grid-cols-3 gap-2"}>
-                    <div className={"col-span-1"}>
-                        <Dropdown value={data.code} onChange={(e) => setData("code", e.value)}
-                                  options={commerces} optionLabel="name"
-                                  placeholder="Pilih eCommerce" className="w-full md:w-14rem" />
-                    </div>
-                    <div className="p-inputgroup flex-1 col-span-2">
+                    <div className="p-inputgroup flex">
                         <TextInput
                             id="url"
                             type="url"
@@ -46,11 +42,12 @@ export default function Welcome() {
                         <PrimaryButton className="ms-2" disabled={processing} onClick={handleSubmit}>
                             Scrap
                         </PrimaryButton>
-                    </div>
+
                 </div>
+                {status &&
                 <div className={"mt-4"}>
-                    <p className={"text-center"}>Download hasil scrap <a href="#" className={"text-blue-500"}>disini</a></p>
-                </div>
+                    <p className={"text-center"}>Download hasil scrap <a href="scrap/download" target={'_blank'} className={"text-blue-500"}>disini</a></p>
+                </div>}
             </GuestLayout>
         </>
     );

@@ -27,6 +27,7 @@ class ProductsExport implements FromQuery, ShouldAutoSize, WithMapping
     public function map($row): array
     {
         return [
+            null,
             $row->name,
             null,
             100,
@@ -45,7 +46,8 @@ class ProductsExport implements FromQuery, ShouldAutoSize, WithMapping
             null,
             'Aktif',
             100,
-            30 * 16000
+            30 * 16000,
+            'opsional'
         ];
     }
 }

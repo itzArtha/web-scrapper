@@ -44,18 +44,18 @@ export default function Welcome({status, scraps}) {
                 </div>
                 {status &&
                 <div className={"mt-4"}>
-                    <p className={"text-center"}>Download hasil scrap <a href="scrap/download" target={'_blank'} className={"text-blue-500"}>disini</a></p>
+                    <p className={"text-center"}>Download hasil scrap <a href={status + "/scrap/download"} target={'_blank'} className={"text-blue-500"}>disini</a></p>
                 </div>}
                 <div className={"mt-4"}>
                     <p className={"text-center"}>Riwayat scrapping</p>
                     <div className='mt-4'>
                         <div className='grid grid-cols-4 gap-2'>
-                            {scraps.map((scrap) => (    
+                            {scraps.map((scrap, index) => (    
                                 <a href={scrap.uuid + '/scrap/download'} class="flex items-center">
                                     <img class="w-10 h-10 rounded-full mr-4" src="https://w7.pngwing.com/pngs/422/204/png-transparent-microsoft-excel-microsoft-office-365-spreadsheet-microsoft-text-logo-microsoft-office-thumbnail.png" alt="Avatar of Jonathan Reinink" />
                                     <div class="text-sm">
-                                        <p class="text-gray-900 text-sm leading-none">{scrap.name}.xlsx</p>
-                                        <p class="text-gray-600 text-xs">{scrap.created_at}</p>
+                                        <p class="text-gray-900 text-sm leading-none">{`products ${index + 1}`}.xlsx</p>
+                                        <p class="text-gray-600 text-xs">{new Date(scrap.created_at).toLocaleDateString()}</p>
                                     </div>
                                 </a>
                             ))}

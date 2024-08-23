@@ -73,7 +73,7 @@ class ScrapWebsite
             ]);
         });
 
-        return back()->with(['status' => 'Berhasil scraping data']);
+        return back()->with(['status' => $store->uuid]);
     }
 
     public function download(Store $store, ActionRequest $request)

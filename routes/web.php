@@ -2,6 +2,7 @@
 
 use App\Actions\ScrapWebsite;
 use App\Http\Controllers\ProfileController;
+use App\Models\Store;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -12,10 +13,11 @@ Route::get('/', function () {
         'canRegister' => Route::has('register'),
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
+        'scraps' => Store::all()
     ]);
 });
 
-Route::get('/scrap/download', [ScrapWebsite::class, 'download'])->name('website.scrap');
+Route::get('/{store:uuid}/scrap/download', [ScrapWebsite::class, 'download'])->name('website.scrap');
 Route::post('/scrap', ScrapWebsite::class)->name('website.scrap');
 
 Route::get('/dashboard', function () {

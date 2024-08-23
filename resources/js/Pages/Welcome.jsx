@@ -5,7 +5,7 @@ import { Dropdown } from 'primereact/dropdown';
 import TextInput from '@/Components/TextInput';
 import PrimaryButton from "@/Components/PrimaryButton.jsx";
 import { useForm } from '@inertiajs/react'
-export default function Welcome({status}) {
+export default function Welcome({status, scraps}) {
     const { data, setData, post, processing, errors } = useForm({
         code: '',
         url: ''
@@ -20,8 +20,6 @@ export default function Welcome({status}) {
         e.preventDefault()
         post(route('website.scrap'))
     }
-
-    console.log(status)
 
     return (
         <>
@@ -48,6 +46,22 @@ export default function Welcome({status}) {
                 <div className={"mt-4"}>
                     <p className={"text-center"}>Download hasil scrap <a href="scrap/download" target={'_blank'} className={"text-blue-500"}>disini</a></p>
                 </div>}
+                <div className={"mt-4"}>
+                    <p className={"text-center"}>Riwayat scrapping</p>
+                    <div className='mt-4'>
+                        <div className='grid grid-cols-4 gap-2'>
+                            {scraps.map((scrap) => (    
+                                <a href={scrap.uuid + '/scrap/download'} class="flex items-center">
+                                    <img class="w-10 h-10 rounded-full mr-4" src="https://w7.pngwing.com/pngs/422/204/png-transparent-microsoft-excel-microsoft-office-365-spreadsheet-microsoft-text-logo-microsoft-office-thumbnail.png" alt="Avatar of Jonathan Reinink" />
+                                    <div class="text-sm">
+                                        <p class="text-gray-900 text-sm leading-none">{scrap.name}.xlsx</p>
+                                        <p class="text-gray-600 text-xs">{scrap.created_at}</p>
+                                    </div>
+                                </a>
+                            ))}
+                        </div>
+                    </div>
+                </div>
             </GuestLayout>
         </>
     );

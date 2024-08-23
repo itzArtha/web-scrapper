@@ -4,7 +4,7 @@ namespace App\Actions;
 
 use App\Exports\ProductsExport;
 use App\Models\Product;
-use Illuminate\Support\Facades\Log;
+use App\Models\Store;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -38,7 +38,13 @@ class ScrapWebsite
         $collection = $productGridContainer->filter('.collection');
         $productGrid = $collection->filter('.product-grid');
 
-        $productGrid->filter('.grid__item')->each(function (Crawler $node) use ($browser) {
+        $store = Store::create([
+            'uuid' => Str::uuid(),
+            'name' => $url,
+            'url' => $url,
+        ]);
+
+        $productGrid->filter('.grid__item')->each(function (Crawler $node) use ($store) {
             $productContentWrapper = $node->filter('.product-card-wrapper');
             $productCard = $productContentWrapper->filter('.card--standard');
 
@@ -59,6 +65,7 @@ class ScrapWebsite
             $uuid = Str::uuid();
 
             Product::create([
+                'store_id' => $store->id,
                 'uuid' => $uuid,
                 'name' => $productName,
                 'price' => $productPrice,
@@ -69,8 +76,8 @@ class ScrapWebsite
         return back()->with(['status' => 'Berhasil scraping data']);
     }
 
-    public function download(ActionRequest $request)
+    public function download(Store $store, ActionRequest $request)
     {
-        return Excel::download(new ProductsExport, now()->format('Ymd') . '-' . 'products.xlsx');
+        return Excel::download(new ProductsExport($store), now()->format('Ymd') . '-' . 'products.xlsx');
     }
 }
